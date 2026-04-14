@@ -23,8 +23,8 @@ write_files:
       fi
       cd app
       cp .env.example .env
-      sed -i 's|^NEXT_PUBLIC_API_URL=.*|NEXT_PUBLIC_API_URL=http://111.88.242.98:8000/api|' .env
-      sed -i 's|^BACKEND_CORS_ORIGINS=.*|BACKEND_CORS_ORIGINS=http://111.88.242.98:3000,http://localhost:3000,http://127.0.0.1:3000|' .env
+      sed -i 's|^INTERNAL_BACKEND_URL=.*|INTERNAL_BACKEND_URL=http://backend:8000|' .env
+      sed -i 's|^BACKEND_CORS_ORIGINS=.*|BACKEND_CORS_ORIGINS=http://cabinet.gorlkts.ru,http://111.88.242.98:3000,http://localhost:3000,http://127.0.0.1:3000|' .env
       sed -i 's|^SECRET_KEY=.*|SECRET_KEY=spo-prod-secret-2026-change-me|' .env
       if [ ! -f backend/.env ]; then
         cp backend/.env.example backend/.env

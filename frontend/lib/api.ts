@@ -1,8 +1,8 @@
 function resolveApiUrl() {
   if (typeof window !== "undefined") {
-    return `${window.location.protocol}//${window.location.hostname}:8000/api`;
+    return "/api";
   }
-  return process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
+  return `${process.env.INTERNAL_BACKEND_URL ?? "http://backend:8000"}/api`;
 }
 
 const API_URL = resolveApiUrl();

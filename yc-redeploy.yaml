@@ -28,16 +28,16 @@ bootcmd:
         cp .env.example .env
       fi
 
-      if grep -q "^NEXT_PUBLIC_API_URL=" .env; then
-        sed -i "s|^NEXT_PUBLIC_API_URL=.*|NEXT_PUBLIC_API_URL=http://111.88.242.98:8000/api|" .env
+      if grep -q "^INTERNAL_BACKEND_URL=" .env; then
+        sed -i "s|^INTERNAL_BACKEND_URL=.*|INTERNAL_BACKEND_URL=http://backend:8000|" .env
       else
-        echo "NEXT_PUBLIC_API_URL=http://111.88.242.98:8000/api" >> .env
+        echo "INTERNAL_BACKEND_URL=http://backend:8000" >> .env
       fi
 
       if grep -q "^BACKEND_CORS_ORIGINS=" .env; then
-        sed -i "s|^BACKEND_CORS_ORIGINS=.*|BACKEND_CORS_ORIGINS=http://111.88.242.98:3000,http://localhost:3000,http://127.0.0.1:3000|" .env
+        sed -i "s|^BACKEND_CORS_ORIGINS=.*|BACKEND_CORS_ORIGINS=http://cabinet.gorlkts.ru,http://111.88.242.98:3000,http://localhost:3000,http://127.0.0.1:3000|" .env
       else
-        echo "BACKEND_CORS_ORIGINS=http://111.88.242.98:3000,http://localhost:3000,http://127.0.0.1:3000" >> .env
+        echo "BACKEND_CORS_ORIGINS=http://cabinet.gorlkts.ru,http://111.88.242.98:3000,http://localhost:3000,http://127.0.0.1:3000" >> .env
       fi
 
       if grep -q "^SECRET_KEY=" .env; then
