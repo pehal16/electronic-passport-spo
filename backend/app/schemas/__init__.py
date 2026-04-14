@@ -1,4 +1,17 @@
 from app.schemas.auth import LoginRequest, RoleRead, Token, UserRead
+from app.schemas.attestation import (
+    AttestationExportRead,
+    AttestationPreviewRead,
+    AttestationSheetCreateRequest,
+    AttestationSheetDisciplineRead,
+    AttestationSheetDisciplineUpdate,
+    AttestationSheetRead,
+    AttestationSheetRowRead,
+    AttestationSheetRowUpdate,
+    AttestationSheetUpdateRequest,
+    AttestationTotalsRead,
+    SheetTemplateRead,
+)
 from app.schemas.domain import (
     AdminProgramsRead,
     AdminUsersRead,
@@ -39,6 +52,16 @@ from app.schemas.domain import (
 __all__ = [
     "AdminProgramsRead",
     "AdminUsersRead",
+    "AttestationExportRead",
+    "AttestationPreviewRead",
+    "AttestationSheetCreateRequest",
+    "AttestationSheetDisciplineRead",
+    "AttestationSheetDisciplineUpdate",
+    "AttestationSheetRead",
+    "AttestationSheetRowRead",
+    "AttestationSheetRowUpdate",
+    "AttestationSheetUpdateRequest",
+    "AttestationTotalsRead",
     "AttendanceBulkEntry",
     "AttendanceBulkUpsert",
     "AttendanceRead",
@@ -73,6 +96,7 @@ __all__ = [
     "StudentDetailRead",
     "StudentListItem",
     "SubjectRead",
+    "SheetTemplateRead",
     "Token",
     "UserRead",
 ]

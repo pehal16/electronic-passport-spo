@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "@/components/auth-provider";
@@ -272,10 +273,29 @@ export default function GradesPage() {
             </label>
           </div>
           {selectedDiscipline ? (
-            <p className="muted">
-              Форма контроля: {controlFormTitle(selectedDiscipline.control_form_code, selectedDiscipline.control_form_title)}
-            </p>
-          ) : null}
+            <>
+              <p className="muted">
+                Форма контроля: {controlFormTitle(selectedDiscipline.control_form_code, selectedDiscipline.control_form_title)}
+              </p>
+              <div className="button-row">
+                <Link
+                  href={`/attestation-sheets/new?curriculum_item_id=${selectedDiscipline.curriculum_item_id}`}
+                  className="button button-link compact-button"
+                >
+                  Сформировать ведомость
+                </Link>
+                <Link href={`/attestation-sheets${selectedGroupId ? `?group_id=${selectedGroupId}` : ""}`} className="button button-link compact-button">
+                  Открыть мастер ведомостей
+                </Link>
+              </div>
+            </>
+          ) : (
+            <div className="button-row">
+              <Link href={`/attestation-sheets${selectedGroupId ? `?group_id=${selectedGroupId}` : ""}`} className="button button-link compact-button">
+                Открыть мастер ведомостей
+              </Link>
+            </div>
+          )}
         </div>
 
         {canEdit ? (

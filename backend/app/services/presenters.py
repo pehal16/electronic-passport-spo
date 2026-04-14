@@ -94,7 +94,18 @@ def serialize_semester(semester: Semester) -> SemesterRead:
 
 
 def serialize_curriculum_item(item: CurriculumItem) -> CurriculumItemRead:
-    practice_hours = item.hours if item.is_practice else None
+    contact_hours = item.contact_hours
+    practice_hours = item.practice_hours
+    if contact_hours is None and practice_hours is None and item.hours is not None:
+        if item.is_practice:
+            practice_hours = item.hours
+        else:
+            contact_hours = item.hours
+
+    total_hours = item.hours
+    if total_hours is None and (contact_hours is not None or practice_hours is not None):
+        total_hours = (contact_hours or 0) + (practice_hours or 0)
+
     return CurriculumItemRead(
         id=item.id,
         code=item.subject.code,
@@ -104,8 +115,8 @@ def serialize_curriculum_item(item: CurriculumItem) -> CurriculumItemRead:
         semester_title=item.semester.title,
         cycle_key=item.subject.block_type,
         cycle_title=cycle_title(item.subject.block_type),
-        total_hours=item.hours,
-        contact_hours=None,
+        total_hours=total_hours,
+        contact_hours=contact_hours,
         practice_hours=practice_hours,
         control_form_code=item.control_form.code,
         control_form_title=item.control_form.title,
@@ -201,8 +212,36 @@ def build_group_detail(group: Group) -> GroupDetailRead:
 
 def semester_summary(semester: Semester) -> SemesterSummaryRead:
     items = semester.curriculum_items
-    total_hours = sum(item.hours or 0 for item in items)
-    practice_hours = sum((item.hours or 0) for item in items if item.is_practice)
+    total_hours = 0
+    contact_hours = 0
+    practice_hours = 0
+    known_hours_items = 0
+    missing_hours_items = 0
+
+    for item in items:
+        item_contact = item.contact_hours
+        item_practice = item.practice_hours
+
+        if item_contact is None and item_practice is None and item.hours is not None:
+            if item.is_practice:
+                item_practice = item.hours
+            else:
+                item_contact = item.hours
+
+        has_item_hours = item.hours is not None or item_contact is not None or item_practice is not None
+        if has_item_hours:
+            known_hours_items += 1
+        else:
+            missing_hours_items += 1
+
+        resolved_total = item.hours
+        if resolved_total is None:
+            resolved_total = (item_contact or 0) + (item_practice or 0)
+
+        total_hours += resolved_total or 0
+        contact_hours += item_contact or 0
+        practice_hours += item_practice or 0
+
     exam_count = sum(1 for item in items if item.control_form.code == "exam")
     dz_count = sum(1 for item in items if item.control_form.code == "dz")
     kdz_count = sum(1 for item in items if item.control_form.code == "kdz")
@@ -212,7 +251,10 @@ def semester_summary(semester: Semester) -> SemesterSummaryRead:
     return SemesterSummaryRead(
         discipline_count=len(items),
         total_hours=total_hours,
+        contact_hours=contact_hours,
         practice_hours=practice_hours,
+        known_hours_items=known_hours_items,
+        missing_hours_items=missing_hours_items,
         exam_count=exam_count,
         dz_count=dz_count,
         kdz_count=kdz_count,

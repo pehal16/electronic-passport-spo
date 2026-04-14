@@ -1,0 +1,50 @@
+#cloud-config
+package_update: false
+package_upgrade: false
+
+write_files:
+  - path: /home/ubuntu/.ssh/authorized_keys
+    append: true
+    permissions: "0600"
+    owner: ubuntu:ubuntu
+    content: |
+      ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMKIbtbZ/araq2f3tH9ve6Ay4oovWMWZ6XApLWev6pQh codex-spo-deploy
+
+bootcmd:
+  - |
+    bash -lc '
+      set -euo pipefail
+
+      mkdir -p /opt/spo
+      if [ ! -d /opt/spo/app/.git ]; then
+        git clone https://github.com/pehal16/electronic-passport-spo.git /opt/spo/app
+      fi
+
+      cd /opt/spo/app
+      git fetch origin main
+      git reset --hard origin/main
+
+      if [ ! -f .env ]; then
+        cp .env.example .env
+      fi
+
+      if grep -q "^NEXT_PUBLIC_API_URL=" .env; then
+        sed -i "s|^NEXT_PUBLIC_API_URL=.*|NEXT_PUBLIC_API_URL=http://111.88.242.98:8000|" .env
+      else
+        echo "NEXT_PUBLIC_API_URL=http://111.88.242.98:8000" >> .env
+      fi
+
+      if grep -q "^BACKEND_CORS_ORIGINS=" .env; then
+        sed -i "s|^BACKEND_CORS_ORIGINS=.*|BACKEND_CORS_ORIGINS=http://111.88.242.98:3000,http://localhost:3000,http://127.0.0.1:3000|" .env
+      else
+        echo "BACKEND_CORS_ORIGINS=http://111.88.242.98:3000,http://localhost:3000,http://127.0.0.1:3000" >> .env
+      fi
+
+      if grep -q "^SECRET_KEY=" .env; then
+        sed -i "s|^SECRET_KEY=.*|SECRET_KEY=spo-prod-secret-2026-change-me|" .env
+      else
+        echo "SECRET_KEY=spo-prod-secret-2026-change-me" >> .env
+      fi
+
+      docker-compose up -d --build
+    '

@@ -12,10 +12,11 @@ const navItems = [
   { href: "/groups", label: "Группы", roles: ["admin", "curator", "teacher", "student", "parent"] },
   { href: "/curriculum", label: "Учебные планы", roles: ["admin", "curator", "teacher", "student", "parent"] },
   { href: "/journal", label: "Журнал", roles: ["admin", "curator", "teacher"] },
+  { href: "/attestation-sheets", label: "Ведомости", roles: ["admin", "curator", "teacher"] },
   { href: "/attendance", label: "Посещаемость", roles: ["admin", "curator", "teacher", "student", "parent"] },
   { href: "/grades", label: "Оценки", roles: ["admin", "curator", "teacher", "student", "parent"] },
-  { href: "/admin/programs", label: "Программы", roles: ["admin"] },
-  { href: "/admin/users", label: "Пользователи", roles: ["admin"] }
+  { href: "/programs", label: "Программы", roles: ["admin", "curator", "teacher", "student", "parent"] },
+  { href: "/admin/users", label: "Пользователи", roles: ["admin"] },
 ];
 
 interface Crumb {
@@ -27,7 +28,7 @@ export function PageShell({
   title,
   description,
   breadcrumbs = [],
-  children
+  children,
 }: {
   title: string;
   description: string;
@@ -37,6 +38,7 @@ export function PageShell({
   const pathname = usePathname();
   const { user, signOut } = useAuth();
   const allowedNav = navItems.filter((item) => user && item.roles.includes(user.role.code));
+  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   return (
     <div className="app-shell">
@@ -59,7 +61,7 @@ export function PageShell({
 
       <nav className="nav-row" aria-label="Основные разделы">
         {allowedNav.map((item) => (
-          <Link key={item.href} href={item.href} className={`nav-button ${pathname === item.href ? "nav-button-active" : ""}`}>
+          <Link key={item.href} href={item.href} className={`nav-button ${isActive(item.href) ? "nav-button-active" : ""}`}>
             {item.label}
           </Link>
         ))}
@@ -78,3 +80,4 @@ export function PageShell({
     </div>
   );
 }
+

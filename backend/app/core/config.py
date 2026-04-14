@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     )
 
     project_name: str = "Электронный паспорт группы СПО"
+    college_full_name: str = "Горловский колледж технологий и сервиса"
     api_v1_prefix: str = "/api"
     secret_key: str = "change-me"
     algorithm: str = "HS256"

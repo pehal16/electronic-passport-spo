@@ -100,7 +100,10 @@ export interface CurriculumItem {
 export interface SemesterSummary {
   discipline_count: number;
   total_hours: number;
+  contact_hours: number;
   practice_hours: number;
+  known_hours_items: number;
+  missing_hours_items: number;
   exam_count: number;
   dz_count: number;
   kdz_count: number;
@@ -308,4 +311,88 @@ export interface AdminProgramsResponse {
   programs: Program[];
   control_forms: ControlForm[];
   structures: ProgramStructure[];
+}
+
+export interface SheetTemplate {
+  id: number;
+  code: string;
+  title: string;
+  type: string;
+  header_label_type: string;
+  has_ticket_number: boolean;
+  has_multiple_disciplines: boolean;
+  has_not_appeared_field: boolean;
+  has_not_submitted_field: boolean;
+  signature_lines_count: number;
+  grade_text_mode: string;
+  is_active: boolean;
+}
+
+export interface AttestationSheetDiscipline {
+  id: number;
+  discipline_name: string;
+  discipline_code: string | null;
+  order_index: number;
+}
+
+export interface AttestationSheetRow {
+  id: number;
+  student_id: number | null;
+  student_name_snapshot: string;
+  row_number: number;
+  ticket_number: string | null;
+  grade_numeric: string | null;
+  grade_text: string | null;
+  attendance_result: "regular" | "not_submitted" | "not_appeared";
+  comment: string | null;
+}
+
+export interface AttestationSheetTotals {
+  excellent: number;
+  good: number;
+  satisfactory: number;
+  unsatisfactory: number;
+  not_submitted: number;
+  not_appeared: number;
+  admitted: number;
+  total_rows: number;
+  total_rows_words: string;
+}
+
+export interface AttestationSheet {
+  id: number;
+  group_id: number;
+  group_name: string;
+  semester_id: number | null;
+  semester_title: string | null;
+  curriculum_item_id: number | null;
+  sheet_template: SheetTemplate;
+  control_form_code: string;
+  title: string;
+  date: string;
+  teacher_name: string;
+  second_teacher_name: string | null;
+  header_label: string;
+  header_value: string;
+  discipline_display_text: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  program_title: string;
+  college_name: string;
+  disciplines: AttestationSheetDiscipline[];
+  rows: AttestationSheetRow[];
+  totals: AttestationSheetTotals;
+}
+
+export interface AttestationPreview {
+  sheet_id: number;
+  html: string;
+}
+
+export interface AttestationExport {
+  sheet_id: number;
+  filename: string;
+  content_type: string;
+  content_base64: string;
 }

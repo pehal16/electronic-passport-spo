@@ -94,7 +94,9 @@ body {
 
 .nav-row {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 4px;
   gap: 10px;
   margin: 16px 0 10px;
 }
@@ -264,6 +266,10 @@ body {
   font-size: 0.96rem;
 }
 
+.table-card {
+  overflow-x: auto;
+}
+
 .table-card th,
 .table-card td,
 .compact-table th,
@@ -384,6 +390,45 @@ body {
 .tab-button-active {
   background: var(--accent-soft);
   border-color: var(--accent);
+}
+
+.accordion {
+  margin-top: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.accordion summary {
+  cursor: pointer;
+  padding: 12px 14px;
+  font-weight: 700;
+}
+
+.accordion > *:not(summary) {
+  padding: 0 14px 14px;
+}
+
+.preview-frame {
+  width: 100%;
+  min-height: 980px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+}
+
+@media print {
+  .app-shell,
+  .topbar,
+  .nav-row,
+  .breadcrumbs,
+  .hero-panel,
+  .tabs-row,
+  .button,
+  .button-link,
+  .button-secondary {
+    display: none !important;
+  }
 }
 
 @media (max-width: 960px) {

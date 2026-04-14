@@ -11,7 +11,7 @@ import { yesNoLabel } from "@/lib/dictionaries";
 import { GroupSummary } from "@/lib/types";
 
 export default function GroupsPage() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const [groups, setGroups] = useState<GroupSummary[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -115,6 +115,11 @@ export default function GroupsPage() {
                 <Link href={`/grades?group_id=${group.id}`} className="button button-link">
                   Оценки
                 </Link>
+                {user && ["admin", "curator", "teacher"].includes(user.role.code) ? (
+                  <Link href={`/attestation-sheets?group_id=${group.id}`} className="button button-link">
+                    Ведомости
+                  </Link>
+                ) : null}
               </div>
             </div>
           ))}

@@ -77,3 +77,17 @@ export function formatWeeks(value: number | null | undefined) {
   }
   return `${value} нед.`;
 }
+
+export function knownHoursLabel(totalHours: number, knownItems: number) {
+  if (knownItems <= 0) {
+    return "—";
+  }
+  return `${totalHours} ч.`;
+}
+
+export function countLabel(value: number, emptyText = "—") {
+  if (!value) {
+    return emptyText;
+  }
+  return String(value);
+}

@@ -27,7 +27,7 @@ type TabKey = (typeof tabs)[number]["key"];
 export default function GroupDetailPage() {
   const params = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState<TabKey>("general");
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const [data, setData] = useState<GroupDetailResponse | null>(null);
   const [students, setStudents] = useState<StudentListItem[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -92,6 +92,16 @@ export default function GroupDetailPage() {
                 {data.summary.practices_total}
               </div>
             </div>
+
+            {user && ["admin", "curator", "teacher"].includes(user.role.code) ? (
+              <div className="card">
+                <h3 className="section-title">Формирование ведомостей</h3>
+                <p className="muted">Если не видите кнопки в журнале или учебном плане, используйте отдельный мастер формирования ведомостей.</p>
+                <Link href={`/attestation-sheets?group_id=${params.id}`} className="button">
+                  Сформировать ведомость
+                </Link>
+              </div>
+            ) : null}
 
             <div className="tabs-row">
               {tabs.map((tab) => (

@@ -1,4 +1,6 @@
-from datetime import date
+from __future__ import annotations
+
+from datetime import date as DateType
 
 from pydantic import BaseModel, ConfigDict
 
@@ -91,7 +93,10 @@ class CurriculumItemRead(BaseModel):
 class SemesterSummaryRead(BaseModel):
     discipline_count: int
     total_hours: int
+    contact_hours: int
     practice_hours: int
+    known_hours_items: int
+    missing_hours_items: int
     exam_count: int
     dz_count: int
     kdz_count: int
@@ -177,7 +182,7 @@ class StudentListItem(BaseModel):
 
 class AttendanceRead(BaseModel):
     id: int
-    date: date
+    date: DateType
     student_id: int
     student_name: str
     status: str
@@ -190,7 +195,7 @@ class AttendanceRead(BaseModel):
 
 class GradeRead(BaseModel):
     id: int
-    date: date
+    date: DateType
     student_id: int
     student_name: str
     grade_value: str
@@ -281,7 +286,7 @@ class JournalSubjectRead(BaseModel):
 class AttendanceUpsert(BaseModel):
     student_id: int
     curriculum_item_id: int
-    date: date
+    date: DateType
     status: str
     reason: str | None = None
 
@@ -294,14 +299,14 @@ class AttendanceBulkEntry(BaseModel):
 
 class AttendanceBulkUpsert(BaseModel):
     curriculum_item_id: int
-    date: date
+    date: DateType
     entries: list[AttendanceBulkEntry]
 
 
 class GradeUpsert(BaseModel):
     student_id: int
     curriculum_item_id: int
-    date: date
+    date: DateType
     grade_value: str
     comment: str | None = None
 
@@ -314,7 +319,7 @@ class GradeBulkEntry(BaseModel):
 
 class GradeBulkUpsert(BaseModel):
     curriculum_item_id: int
-    date: date
+    date: DateType
     entries: list[GradeBulkEntry]
 
 

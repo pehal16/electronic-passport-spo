@@ -156,6 +156,11 @@ export default function JournalPage() {
               </select>
             </label>
           </div>
+          <div className="button-row">
+            <Link href={`/attestation-sheets${selectedGroupId ? `?group_id=${selectedGroupId}` : ""}`} className="button">
+              Сформировать ведомость
+            </Link>
+          </div>
         </div>
 
         <div className="tabs-row">
@@ -222,6 +227,9 @@ export default function JournalPage() {
                         <Link href={`/attendance?group_id=${row.group_id}&semester_id=${row.semester_id}&curriculum_item_id=${row.curriculum_item_id}`} className="button button-link compact-button">
                           Внести посещаемость
                         </Link>
+                        <Link href={`/attestation-sheets/new?curriculum_item_id=${row.curriculum_item_id}`} className="button button-link compact-button">
+                          Сформировать ведомость
+                        </Link>
                       </div>
                     </td>
                   </tr>
@@ -240,6 +248,17 @@ export default function JournalPage() {
                 <p className="muted">
                   {subjectJournal.group_name} • {subjectJournal.semester_title} • {subjectJournal.control_form_title}
                 </p>
+                <div className="button-row">
+                  <Link href={`/attestation-sheets/new?curriculum_item_id=${subjectJournal.curriculum_item_id}`} className="button button-link compact-button">
+                    Сформировать ведомость
+                  </Link>
+                  <Link
+                    href={`/grades?curriculum_item_id=${subjectJournal.curriculum_item_id}`}
+                    className="button button-link compact-button"
+                  >
+                    Внести оценки
+                  </Link>
+                </div>
                 <div className="table-card">
                   <table>
                     <thead>

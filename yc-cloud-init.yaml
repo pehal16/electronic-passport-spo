@@ -1,0 +1,38 @@
+#cloud-config
+package_update: true
+packages:
+  - git
+  - curl
+  - ca-certificates
+  - docker.io
+  - docker-compose
+write_files:
+  - path: /opt/spo/deploy.sh
+    permissions: '0755'
+    content: |
+      #!/bin/bash
+      set -euxo pipefail
+      mkdir -p /opt/spo
+      cd /opt/spo
+      if [ ! -d app ]; then
+        git clone https://github.com/pehal16/electronic-passport-spo.git app
+      else
+        cd app
+        git pull --ff-only
+        cd ..
+      fi
+      cd app
+      cp .env.example .env
+      sed -i 's|^NEXT_PUBLIC_API_URL=.*|NEXT_PUBLIC_API_URL=http://111.88.242.98:8000|' .env
+      sed -i 's|^BACKEND_CORS_ORIGINS=.*|BACKEND_CORS_ORIGINS=http://111.88.242.98:3000,http://localhost:3000,http://127.0.0.1:3000|' .env
+      sed -i 's|^SECRET_KEY=.*|SECRET_KEY=spo-prod-secret-2026-change-me|' .env
+      if [ ! -f backend/.env ]; then
+        cp backend/.env.example backend/.env
+      fi
+      if [ ! -f frontend/.env.local ]; then
+        cp frontend/.env.local.example frontend/.env.local
+      fi
+      docker-compose up -d --build
+runcmd:
+  - [ bash, -lc, "systemctl enable --now docker" ]
+  - [ bash, -lc, "/opt/spo/deploy.sh > /var/log/spo-deploy.log 2>&1" ]

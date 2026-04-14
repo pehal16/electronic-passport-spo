@@ -24,6 +24,7 @@ from app.models import (
     Subject,
     TeacherAssignment,
     User,
+    SheetTemplate,
 )
 
 TEK_STUDENTS = [
@@ -79,6 +80,7 @@ def clear_database(session) -> None:
         "control_forms",
         "users",
         "roles",
+        "sheet_templates",
     ]
     session.execute(text(f"TRUNCATE TABLE {', '.join(table_names)} RESTART IDENTITY CASCADE;"))
     session.commit()
@@ -115,6 +117,8 @@ def create_control_forms(session) -> dict[str, ControlForm]:
         "dz": "Дифференцированный зачет",
         "kdz": "Комплексный дифференцированный зачет",
         "module_exam": "Экзамен по модулю",
+        "credit_sheet": "Зачетная ведомость",
+        "complex_exam": "Комплексный экзамен",
         "demo_exam": "Демонстрационный экзамен",
         "diploma_defense": "Защита дипломной работы",
         "none": "Нет итоговой формы в семестре",
@@ -123,6 +127,66 @@ def create_control_forms(session) -> dict[str, ControlForm]:
     session.add_all(forms.values())
     session.flush()
     return forms
+
+
+def create_sheet_templates(session) -> dict[str, SheetTemplate]:
+    templates = {
+        "diff_credit": SheetTemplate(
+            code="diff_credit",
+            title="Ведомость дифференцированного зачета",
+            type="diff_credit",
+            header_label_type="specialty_or_profession",
+            has_ticket_number=False,
+            has_multiple_disciplines=False,
+            has_not_appeared_field=True,
+            has_not_submitted_field=True,
+            signature_lines_count=2,
+            grade_text_mode="full",
+            is_active=True,
+        ),
+        "credit_sheet": SheetTemplate(
+            code="credit_sheet",
+            title="Зачетная ведомость",
+            type="credit_sheet",
+            header_label_type="specialty_or_profession",
+            has_ticket_number=False,
+            has_multiple_disciplines=False,
+            has_not_appeared_field=True,
+            has_not_submitted_field=True,
+            signature_lines_count=2,
+            grade_text_mode="full",
+            is_active=True,
+        ),
+        "complex_diff_credit": SheetTemplate(
+            code="complex_diff_credit",
+            title="Ведомость комплексного дифференцированного зачета",
+            type="complex_diff_credit",
+            header_label_type="specialty_or_profession",
+            has_ticket_number=False,
+            has_multiple_disciplines=True,
+            has_not_appeared_field=True,
+            has_not_submitted_field=True,
+            signature_lines_count=2,
+            grade_text_mode="full",
+            is_active=True,
+        ),
+        "complex_exam": SheetTemplate(
+            code="complex_exam",
+            title="Ведомость комплексного экзамена",
+            type="complex_exam",
+            header_label_type="specialty_or_profession",
+            has_ticket_number=True,
+            has_multiple_disciplines=True,
+            has_not_appeared_field=True,
+            has_not_submitted_field=False,
+            signature_lines_count=2,
+            grade_text_mode="full",
+            is_active=True,
+        ),
+    }
+    session.add_all(templates.values())
+    session.flush()
+    return templates
 
 
 def create_programs_and_groups(session) -> tuple[dict[str, Program], dict[str, Group]]:
@@ -226,7 +290,45 @@ def ensure_subject(session, subjects: dict[str, Subject], program: Program, code
     return subjects[key]
 
 
-def add_curriculum_item(session, group: Group, semester: Semester, subject: Subject, control_form: ControlForm, *, hours: int | None = None, is_practice: bool = False, practice_type: str | None = None, complex_group_code: str | None = None, requires_manual_confirmation: bool = False, notes: str | None = None) -> CurriculumItem:
+def add_curriculum_item(
+    session,
+    group: Group,
+    semester: Semester,
+    subject: Subject,
+    control_form: ControlForm,
+    *,
+    hours: int | None = None,
+    contact_hours: int | None = None,
+    practice_hours: int | None = None,
+    is_practice: bool = False,
+    practice_type: str | None = None,
+    complex_group_code: str | None = None,
+    statement_template_code: str | None = None,
+    is_complex_exam: bool = False,
+    requires_ticket_number: bool = False,
+    examiner_count: int = 1,
+    requires_manual_confirmation: bool = False,
+    notes: str | None = None,
+) -> CurriculumItem:
+    resolved_contact_hours = contact_hours
+    resolved_practice_hours = practice_hours
+    if hours is not None and contact_hours is None and practice_hours is None:
+        if is_practice:
+            resolved_practice_hours = hours
+        else:
+            resolved_contact_hours = hours
+
+    resolved_statement_template_code = statement_template_code
+    if not resolved_statement_template_code:
+        if control_form.code == "dz":
+            resolved_statement_template_code = "diff_credit"
+        elif control_form.code == "kdz":
+            resolved_statement_template_code = "complex_diff_credit"
+        elif control_form.code == "exam":
+            resolved_statement_template_code = "complex_exam" if is_complex_exam else "diff_credit"
+        elif control_form.code == "credit_sheet":
+            resolved_statement_template_code = "credit_sheet"
+
     existing = session.execute(
         select(CurriculumItem).where(
             CurriculumItem.group_id == group.id,
@@ -237,14 +339,37 @@ def add_curriculum_item(session, group: Group, semester: Semester, subject: Subj
     if existing:
         existing.control_form_id = control_form.id
         existing.hours = hours if hours is not None else existing.hours
+        existing.contact_hours = resolved_contact_hours if resolved_contact_hours is not None else existing.contact_hours
+        existing.practice_hours = resolved_practice_hours if resolved_practice_hours is not None else existing.practice_hours
         existing.is_practice = is_practice or existing.is_practice
         existing.practice_type = practice_type or existing.practice_type
         existing.complex_group_code = complex_group_code or existing.complex_group_code
+        existing.statement_template_code = resolved_statement_template_code or existing.statement_template_code
+        existing.is_complex_exam = is_complex_exam or existing.is_complex_exam
+        existing.requires_ticket_number = requires_ticket_number or existing.requires_ticket_number
+        existing.examiner_count = examiner_count if examiner_count else existing.examiner_count
         existing.requires_manual_confirmation = requires_manual_confirmation or existing.requires_manual_confirmation
         existing.notes = notes or existing.notes
         session.flush()
         return existing
-    item = CurriculumItem(group_id=group.id, semester_id=semester.id, subject_id=subject.id, control_form_id=control_form.id, hours=hours, is_practice=is_practice, practice_type=practice_type, complex_group_code=complex_group_code, requires_manual_confirmation=requires_manual_confirmation, notes=notes)
+    item = CurriculumItem(
+        group_id=group.id,
+        semester_id=semester.id,
+        subject_id=subject.id,
+        control_form_id=control_form.id,
+        hours=hours,
+        contact_hours=resolved_contact_hours,
+        practice_hours=resolved_practice_hours,
+        is_practice=is_practice,
+        practice_type=practice_type,
+        complex_group_code=complex_group_code,
+        statement_template_code=resolved_statement_template_code,
+        is_complex_exam=is_complex_exam,
+        requires_ticket_number=requires_ticket_number,
+        examiner_count=examiner_count,
+        requires_manual_confirmation=requires_manual_confirmation,
+        notes=notes,
+    )
     session.add(item)
     session.flush()
     return item
@@ -530,6 +655,7 @@ def seed() -> None:
         roles = create_roles(session)
         users = create_users(session, roles)
         forms = create_control_forms(session)
+        create_sheet_templates(session)
         programs, groups = create_programs_and_groups(session)
         semesters = create_semesters(session, groups)
         students = create_students(session, groups, users)

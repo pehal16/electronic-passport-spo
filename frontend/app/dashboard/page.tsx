@@ -13,6 +13,7 @@ export default function DashboardPage() {
   const { token } = useAuth();
   const [data, setData] = useState<DashboardData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const canCreateSheets = data ? ["admin", "curator", "teacher"].includes(data.role_code) : false;
 
   useEffect(() => {
     if (!token) {
@@ -39,6 +40,21 @@ export default function DashboardPage() {
             </div>
           ))}
         </div>
+
+        {canCreateSheets ? (
+          <div className="card">
+            <h3 className="section-title">Формирование ведомостей</h3>
+            <p className="muted">Быстрый сценарий: открыть мастер, выбрать группу, семестр и дисциплину, затем нажать «Сформировать ведомость».</p>
+            <div className="button-row">
+              <Link className="button" href="/attestation-sheets">
+                Сформировать ведомость
+              </Link>
+              <Link className="button button-link" href="/journal">
+                Открыть журнал
+              </Link>
+            </div>
+          </div>
+        ) : null}
 
         <div className="three-col">
           <div className="card">

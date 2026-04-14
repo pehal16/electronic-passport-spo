@@ -16,29 +16,36 @@ def _role_quick_links(role_code: str) -> list[DashboardQuickLink]:
             ("Открыть группы", "/groups"),
             ("Открыть учебные планы", "/groups"),
             ("Открыть журнал", "/journal"),
+            ("Открыть ведомости", "/attestation-sheets"),
+            ("Программы", "/programs"),
             ("Пользователи", "/admin/users"),
-            ("Программы", "/admin/programs"),
         ],
         "curator": [
             ("Открыть группы", "/groups"),
             ("Открыть учебные планы", "/groups"),
             ("Открыть журнал", "/journal"),
+            ("Открыть ведомости", "/attestation-sheets"),
+            ("Программы", "/programs"),
             ("Внести посещаемость", "/attendance"),
             ("Внести оценку", "/grades"),
         ],
         "teacher": [
             ("Открыть группы", "/groups"),
             ("Открыть журнал", "/journal"),
+            ("Открыть ведомости", "/attestation-sheets"),
+            ("Программы", "/programs"),
             ("Внести посещаемость", "/attendance"),
             ("Внести оценку", "/grades"),
         ],
         "student": [
             ("Моя группа", "/groups"),
+            ("Программы", "/programs"),
             ("Мои оценки", "/grades"),
             ("Моя посещаемость", "/attendance"),
         ],
         "parent": [
             ("Группа ребенка", "/groups"),
+            ("Программы", "/programs"),
             ("Оценки ребенка", "/grades"),
             ("Посещаемость ребенка", "/attendance"),
         ],
@@ -72,6 +79,8 @@ def get_dashboard(
         select(func.count(CurriculumItem.id))
         .where(CurriculumItem.group_id.in_(group_ids))
         .where(CurriculumItem.hours.is_(None))
+        .where(CurriculumItem.contact_hours.is_(None))
+        .where(CurriculumItem.practice_hours.is_(None))
     ).scalar_one() if group_ids else 0
 
     missing_control_form_count = db.execute(
