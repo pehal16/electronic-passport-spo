@@ -24,6 +24,18 @@ interface Crumb {
   href?: string;
 }
 
+function getInitials(name?: string | null) {
+  if (!name) {
+    return "КК";
+  }
+  return name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("")
+    .slice(0, 2);
+}
+
 export function PageShell({
   title,
   description,
@@ -42,16 +54,31 @@ export function PageShell({
 
   return (
     <div className="app-shell">
+      <div className="page-backdrop page-backdrop-one" />
+      <div className="page-backdrop page-backdrop-two" />
+
       <header className="topbar">
-        <div>
-          <p className="eyebrow">Электронный паспорт группы СПО</p>
-          <h1 className="brand-title">Кабинет колледжа</h1>
-          <p className="muted">{user?.role.title}</p>
+        <div className="brand-block">
+          <div className="eyebrow-row">
+            <p className="eyebrow">Электронный паспорт группы СПО</p>
+            <span className="status-pill status-success">Рабочий кабинет</span>
+          </div>
+          <div className="brand-row">
+            <div>
+              <h1 className="brand-title">Кабинет колледжа</h1>
+              <p className="brand-subtitle">Единое пространство для групп, учебных планов, журнала и ведомостей.</p>
+            </div>
+          </div>
         </div>
+
         <div className="user-box">
-          <div>
+          <div className="user-avatar" aria-hidden="true">
+            {getInitials(user?.full_name)}
+          </div>
+          <div className="user-meta">
             <strong>{user?.full_name}</strong>
             <p className="muted">{user?.login}</p>
+            <span className="status-pill">{user?.role.title}</span>
           </div>
           <button className="button button-secondary" type="button" onClick={signOut}>
             Выйти
@@ -71,13 +98,28 @@ export function PageShell({
 
       <section className="hero-panel">
         <div>
+          <p className="hero-kicker">Рабочий экран</p>
           <h2>{title}</h2>
           <p className="hero-description">{description}</p>
+        </div>
+        <div className="hero-side">
+          <div className="hero-side-card">
+            <span className="eyebrow">Пользователь</span>
+            <strong>{user?.role.title}</strong>
+            <p className="muted">Интерфейс подстраивается под роль и показывает только нужные разделы.</p>
+          </div>
         </div>
       </section>
 
       <main className="page-content">{children}</main>
+
+      <footer className="developer-plaque">
+        <div>
+          <span className="eyebrow">Разработка и сопровождение</span>
+          <strong>Разработчик: Постовит Д.А.</strong>
+        </div>
+        <span className="status-pill">Современный кабинет колледжа</span>
+      </footer>
     </div>
   );
 }
-
