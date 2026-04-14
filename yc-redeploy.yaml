@@ -29,9 +29,9 @@ bootcmd:
       fi
 
       if grep -q "^NEXT_PUBLIC_API_URL=" .env; then
-        sed -i "s|^NEXT_PUBLIC_API_URL=.*|NEXT_PUBLIC_API_URL=http://111.88.242.98:8000|" .env
+        sed -i "s|^NEXT_PUBLIC_API_URL=.*|NEXT_PUBLIC_API_URL=http://111.88.242.98:8000/api|" .env
       else
-        echo "NEXT_PUBLIC_API_URL=http://111.88.242.98:8000" >> .env
+        echo "NEXT_PUBLIC_API_URL=http://111.88.242.98:8000/api" >> .env
       fi
 
       if grep -q "^BACKEND_CORS_ORIGINS=" .env; then
